@@ -17,7 +17,7 @@ func getDummyData() []Product {
   return data
 }
 
-func selectFromDB(query string) []Product {
+func selectFromDB(query string) ([]Product, error) {
   db, err := sql.Open("mysql",
     "root:kakoregoda@tcp(127.0.0.1:3306)/products")
   if (err != nil) {
@@ -45,7 +45,11 @@ func selectFromDB(query string) []Product {
   }
 
   defer db.Close()
-  return products
+
+  if products == nil {
+    err = errors.New("No products matched that query")
+  }
+  return products, err
 }
 
 func printJSON(product interface{}, w http.ResponseWriter) {

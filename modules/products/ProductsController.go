@@ -9,7 +9,7 @@ import (
 
 // GET: /products/
 func Index(w http.ResponseWriter, r *http.Request) {
-  products := selectFromDB("select * from products where id=1")
+  products, _ := selectFromDB("select * from products")
 
   for _,p := range products {
     printJSON(p, w)
@@ -27,13 +27,12 @@ func Show(w http.ResponseWriter, r *http.Request) {
     return
   }
 
-  products := getDummyData()
-  product, err := getProductsByID(products, id)
+  product, err := selectFromDB("select * from products where id=" + strconv.Itoa(id))
 
   if (err != nil) {
-    http.NotFound(w, r)
+    http.Error(w, "No product with that id", http.StatusBadRequest)
     return
   }
 
-  printJSON(product, w)
+  printJSON(product[0], w)
 }
