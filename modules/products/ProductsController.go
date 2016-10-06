@@ -2,14 +2,18 @@ package products
 
 import (
   "github.com/gorilla/mux"
-
+	_"github.com/go-sql-driver/mysql"
   "strconv"
   "net/http"
 )
 
 // GET: /products/
 func Index(w http.ResponseWriter, r *http.Request) {
-  printJSON(getDummyData(), w)
+  products := selectFromDB("select * from products where id=1")
+
+  for _,p := range products {
+    printJSON(p, w)
+  }
 }
 
 // GET: /products/1

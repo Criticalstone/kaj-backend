@@ -5,6 +5,8 @@ import (
   "net/http"
   "encoding/json"
   "errors"
+  "fmt"
+  "database/sql"
 )
 
 func getDummyData() []Product {
@@ -13,6 +15,37 @@ func getDummyData() []Product {
     data[i] = Product{ID: i + 1, Name: "Random product " + strconv.Itoa(i + 1)}
   }
   return data
+}
+
+func selectFromDB(query string) []Product {
+  db, err := sql.Open("mysql",
+    "root:kakoregoda@tcp(127.0.0.1:3306)/products")
+  if (err != nil) {
+    fmt.Println(err)
+  }
+
+  var product Product
+  var products []Product
+  rows, err := db.Query(query)
+  if err != nil {
+  	fmt.Println(err)
+  }
+
+  defer rows.Close()
+  for rows.Next() {
+    err := rows.Scan(&product.ID, &product.Name)
+    if err != nil {
+      fmt.Println(err)
+    }
+    products = append(products, product)
+  }
+  err = rows.Err()
+  if err != nil {
+    fmt.Println(err)
+  }
+
+  defer db.Close()
+  return products
 }
 
 func printJSON(product interface{}, w http.ResponseWriter) {
